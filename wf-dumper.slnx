@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="wf-dumper/wf-dumper.vcxproj" />
+  <Project Path="wf-dumper/wf-dumper.vcxproj" Id="9789fd4f-d225-4a48-842d-37562e16f86c" />
 </Solution>
