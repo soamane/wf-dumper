@@ -6,6 +6,11 @@
 #include <windows.h>
 #include <string>
 
+struct TextSectionInfo {
+  uintptr_t base;
+  std::size_t size;
+};
+
 class ProcMan {
  public:
   ProcMan(const std::string& procName);
@@ -17,17 +22,20 @@ class ProcMan {
  public:
   HANDLE GetHandle() const;
   HMODULE GetModule() const;
-  std::size_t GetImageSize() const;
+  SIZE_T GetSize() const;
+  TextSectionInfo GetTextSectionInfo() const;
 
  private:
   bool OpenProc();
   bool GetProcId();
   bool GetProcBase();
+  bool GetImageSize();
 
  private:
   DWORD procId;
   HANDLE hProc;
   HMODULE hModule;
+  SIZE_T imageSize;
   std::string procName;
 };
 

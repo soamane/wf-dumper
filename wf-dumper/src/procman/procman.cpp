@@ -5,7 +5,7 @@
 #include <print>
 
 ProcMan::ProcMan(const std::string& procName)
-    : procId(0), hProc(0), hModule(0), procName(procName) {}
+    : procId(0), hProc(0), hModule(0), imageSize(0), procName(procName) {}
 
 ProcMan::~ProcMan() {
   if (hProc) {
@@ -30,6 +30,11 @@ bool ProcMan::Init() {
     return false;
   }
 
+  if (!GetImageSize()) {
+    std::println("[-] Failed to get image size for '{}'", procName);
+    return false;
+  }
+
   return true;
 }
 
@@ -41,20 +46,12 @@ HMODULE ProcMan::GetModule() const {
   return hModule;
 }
 
-std::size_t ProcMan::GetImageSize() const {
-  IMAGE_DOS_HEADER dos;
-  if (!ReadProcessMemory(hProc, hModule, &dos, sizeof(dos), nullptr)) {
-    return 0;
-  }
+std::size_t ProcMan::GetSize() const {
+  return imageSize;
+}
 
-  IMAGE_NT_HEADERS nt;
-  if (!ReadProcessMemory(
-          hProc, reinterpret_cast<std::uint8_t*>(hModule) + dos.e_lfanew, &nt,
-          sizeof(nt), nullptr)) {
-    return 0;
-  }
-
-  return nt.OptionalHeader.SizeOfImage;
+TextSectionInfo ProcMan::GetTextSectionInfo() const {
+  return TextSectionInfo();
 }
 
 bool ProcMan::OpenProc() {
@@ -101,4 +98,21 @@ bool ProcMan::GetProcBase() {
   }
 
   return false;
+}
+
+bool ProcMan::GetImageSize() {
+  IMAGE_DOS_HEADER dos;
+  if (!ReadProcessMemory(hProc, hModule, &dos, sizeof(dos), nullptr)) {
+    return false;
+  }
+
+  IMAGE_NT_HEADERS nt;
+  if (!ReadProcessMemory(
+          hProc, reinterpret_cast<std::uint8_t*>(hModule) + dos.e_lfanew, &nt,
+          sizeof(nt), nullptr)) {
+    return false;
+  }
+
+  imageSize = nt.OptionalHeader.SizeOfImage;
+  return true;
 }
