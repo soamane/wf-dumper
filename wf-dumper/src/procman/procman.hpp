@@ -23,20 +23,23 @@ class ProcMan {
   HANDLE GetHandle() const;
   HMODULE GetModule() const;
   SIZE_T GetSize() const;
-  TextSectionInfo GetTextSectionInfo() const;
+  TextSectionInfo GetTextSection() const;
 
  private:
   bool OpenProc();
   bool GetProcId();
   bool GetProcBase();
   bool GetImageSize();
+  bool GetTextSectionInfo();
 
  private:
   DWORD procId;
   HANDLE hProc;
   HMODULE hModule;
   SIZE_T imageSize;
+
   std::string procName;
+  TextSectionInfo textSectionInfo;
 };
 
 #endif  // !PROCMAN_HPP

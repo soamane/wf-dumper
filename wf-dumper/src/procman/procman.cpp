@@ -35,6 +35,11 @@ bool ProcMan::Init() {
     return false;
   }
 
+  if (!GetTextSectionInfo()) {
+    std::println("[-] Failed to get .text section info for '{}'", procName);
+    return false;
+  }
+
   return true;
 }
 
@@ -50,8 +55,44 @@ std::size_t ProcMan::GetSize() const {
   return imageSize;
 }
 
-TextSectionInfo ProcMan::GetTextSectionInfo() const {
-  return TextSectionInfo();
+TextSectionInfo ProcMan::GetTextSection() const {
+  return textSectionInfo;
+}
+
+bool ProcMan::GetTextSectionInfo() {
+  IMAGE_DOS_HEADER dos;
+  if (!ReadProcessMemory(hProc, hModule, &dos, sizeof(dos), nullptr)) {
+    return false;
+  }
+
+  IMAGE_NT_HEADERS nt;
+  if (!ReadProcessMemory(
+          hProc, reinterpret_cast<std::uint8_t*>(hModule) + dos.e_lfanew, &nt,
+          sizeof(nt), nullptr)) {
+    return false;
+  }
+
+  std::size_t sectionCount = nt.FileHeader.NumberOfSections;
+  IMAGE_SECTION_HEADER sections[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+  if (!ReadProcessMemory(hProc,
+                         reinterpret_cast<std::uint8_t*>(hModule) +
+                             dos.e_lfanew + sizeof(IMAGE_NT_HEADERS),
+                         &sections, sectionCount * sizeof(IMAGE_SECTION_HEADER),
+                         nullptr)) {
+    return false;
+  }
+
+  for (std::size_t i = 0; i < sectionCount; ++i) {
+    if (strncmp(reinterpret_cast<const char*>(sections[i].Name), ".text", 5) ==
+        0) {
+      textSectionInfo.base = reinterpret_cast<std::uintptr_t>(hModule) +
+                             sections[i].VirtualAddress;
+      textSectionInfo.size = sections[i].Misc.VirtualSize;
+      break;
+    }
+  }
+
+  return true;
 }
 
 bool ProcMan::OpenProc() {
