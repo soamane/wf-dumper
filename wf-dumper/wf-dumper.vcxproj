@@ -27,6 +27,9 @@
     <ClInclude Include="src\procman\procman.hpp" />
     <ClInclude Include="src\scanner\scanner.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\scanner\scanner.inl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

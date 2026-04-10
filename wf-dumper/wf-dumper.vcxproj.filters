@@ -33,4 +33,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\scanner\scanner.inl">
+      <Filter>Файлы заголовков</Filter>
+    </None>
+  </ItemGroup>
 </Project>
